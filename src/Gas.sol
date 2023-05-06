@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-contract Constants {
-    uint256 public tradeFlag = 1;
-    uint256 public basicFlag = 0;
-    uint256 public dividendFlag = 1;
-}
-
-contract GasContract is Constants {
+contract GasContract {
     uint256 public totalSupply = 0; // cannot be updated
     uint256 public paymentCounter = 0;
     mapping(address => uint256) public balances;
@@ -148,20 +142,9 @@ contract GasContract is Constants {
         return balance;
     }
 
-    function getTradingMode() public view returns (bool mode_) {
-        bool mode = false;
-        if (tradeFlag == 1 || dividendFlag == 1) {
-            mode = true;
-        } else {
-            mode = false;
-        }
-        return mode;
-    }
-
-
-    function addHistory(address _updateAddress, bool _tradeMode)
+    function addHistory(address _updateAddress)
         public
-        returns (bool status_, bool tradeMode_)
+        returns (bool status_) //Ant0 does it really need to return?
     {
         History memory history;
         history.blockNumber = block.number;
@@ -172,7 +155,7 @@ contract GasContract is Constants {
         for (uint256 i = 0; i < tradePercent; i++) {
             status[i] = true;
         }
-        return ((status[0] == true), _tradeMode);
+        return ((status[0] == true));
     }
 
     function getPayments(address _user)
@@ -247,8 +230,7 @@ contract GasContract is Constants {
                 payments[_user][ii].admin = _user;
                 payments[_user][ii].paymentType = _type;
                 payments[_user][ii].amount = _amount;
-                bool tradingMode = getTradingMode();
-                addHistory(_user, tradingMode);
+                addHistory(_user);
                 emit PaymentUpdated(
                     senderOfTx,
                     _ID,
@@ -314,7 +296,6 @@ contract GasContract is Constants {
         emit WhiteListTransfer(_recipient);
     }
 
-
     function getPaymentStatus(address sender) external view returns (bool, uint256) {        
         return (whiteListStruct[sender].paymentStatus, whiteListStruct[sender].amount);
     }
@@ -322,7 +303,6 @@ contract GasContract is Constants {
     receive() external payable {
         payable(msg.sender).transfer(msg.value);
     }
-
 
     fallback() external payable {
          payable(msg.sender).transfer(msg.value);
