@@ -1,0 +1,14 @@
+Test result: ok. 8 passed; 0 failed; finished in 348.74ms
+| src/Gas.sol:GasContract contract |                 |       |        |       |         |
+|----------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                  | Deployment Size |       |        |       |         |
+| 362174                           | 1878            |       |        |       |         |
+| Function Name                    | min             | avg   | median | max   | # calls |
+| addToWhitelist                   | 360             | 17207 | 23942  | 23942 | 7       |
+| administrators                   | 2501            | 2501  | 2501   | 2501  | 5       |
+| balanceOf                        | 2596            | 2596  | 2596   | 2596  | 3       |
+| balances                         | 534             | 1034  | 534    | 2534  | 4       |
+| getPaymentStatus                 | 570             | 570   | 570    | 570   | 1       |
+| transfer                         | 25834           | 25834 | 25834  | 25834 | 3       |
+| whiteTransfer                    | 44379           | 45712 | 46379  | 46379 | 3       |
+| whitelist                        | 556             | 556   | 556    | 556   | 2       |

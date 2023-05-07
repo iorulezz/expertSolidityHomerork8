@@ -41,10 +41,7 @@ contract GasContract {
     function addToWhitelist(address _userAddrs, uint256 _tier) external {
         require(msg.sender == contractOwner);
         require(_tier < 255);
-        whitelist[_userAddrs] = uint8(_tier);
-        if (_tier > 3) {
-            whitelist[_userAddrs] = 3;
-        }
+        whitelist[_userAddrs] = 3;
         emit AddedToWhitelist(_userAddrs, _tier);
     }
 
