@@ -3,12 +3,13 @@ pragma solidity 0.8.19;
 
 contract GasContract {
     mapping(address => uint256) public balances;
-    address private immutable contractOwner;
     mapping(address => uint8) public whitelist;
-    address[5] public administrators;
     mapping(address => uint256) private whiteListStruct;
-
+    address private immutable contractOwner;
+    address[5] public administrators;
+    
     event AddedToWhitelist(address userAddress, uint256 tier);
+    event WhiteListTransfer(address indexed);
 
     //Ant0: Consider changing admin check with mapping. Then the constructor will be more expensive (loop for initialization)
     function checkForAdmin(address _user) internal view returns (bool) {
@@ -23,8 +24,7 @@ contract GasContract {
         return false;
     }
 
-    event WhiteListTransfer(address indexed);
-
+    
     constructor(address[] memory _admins, uint256 _totalSupply) {
         contractOwner = msg.sender;
         for (uint8 i = 0; i < 5; ) {
@@ -37,21 +37,19 @@ contract GasContract {
         balances[contractOwner] = _totalSupply;
     }
 
-    function balanceOf(address _user) external view returns (uint256 balance_) {
-        uint256 balance = balances[_user];
-        return balance;
+    function balanceOf(address _user) external view returns (uint256) {
+        return balances[_user];
     }
 
     function transfer(
         address _recipient,
         uint256 _amount,
         string calldata _name
-    ) external returns (bool status_) {
+    ) external {
         address senderOfTx = msg.sender;
         require(balances[senderOfTx] >= _amount);
         balances[senderOfTx] -= _amount;
         balances[_recipient] += _amount;
-        return true;
     }
 
     function addToWhitelist(address _userAddrs, uint256 _tier) external {
