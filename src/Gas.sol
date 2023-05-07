@@ -42,19 +42,18 @@ contract GasContract {
 
     modifier onlyAdminOrOwner() {
         address senderOfTx = msg.sender;
-        if (checkForAdmin(senderOfTx)) {
-            require(
-                checkForAdmin(senderOfTx),
-                "Gas Contract Only Admin Check-  Caller not admin"
-            );
-            _;
-        } else if (senderOfTx == contractOwner) {
-            _;
-        } else {
-            revert(
-                "Error in Gas contract - onlyAdminOrOwner modifier : revert happened because the originator of the transaction was not the admin, and furthermore he wasn't the owner of the contract, so he cannot run this function"
-            );
+        require(senderOfTx == contractOwner || checkForAdmin(senderOfTx));
+        _;
+    }
+
+    //Ant0: Consider changing admin check with mapping. Then the constructor will be more expensive (loop for initialization)
+    function checkForAdmin(address _user) public view returns (bool) {
+        for (uint256 ii = 0; ii < administrators.length; ii++) {
+            if (administrators[ii] == _user) {
+                return true;
+            }
         }
+        return false;
     }
 
     modifier checkIfWhiteListed(address sender) {
@@ -82,16 +81,6 @@ contract GasContract {
         totalSupply = _totalSupply;
         administrators = _admins;
         balances[contractOwner] = totalSupply;
-    }
-
-    function checkForAdmin(address _user) public view returns (bool admin_) {
-        bool admin = false;
-        for (uint256 ii = 0; ii < administrators.length; ii++) {
-            if (administrators[ii] == _user) {
-                admin = true;
-            }
-        }
-        return admin;
     }
 
     function balanceOf(address _user) public view returns (uint256 balance_) {
@@ -230,12 +219,4 @@ contract GasContract {
             whiteListStruct[sender].amount
         );
     }
-
-    /*receive() external payable {
-        payable(msg.sender).transfer(msg.value);
-    }
-
-    fallback() external payable {
-        payable(msg.sender).transfer(msg.value);
-    }*/
 }
