@@ -2,14 +2,14 @@
 pragma solidity 0.8.19;
 
 contract GasContract {
-    uint256 public totalSupply = 0; // cannot be updated
+    uint256 private totalSupply; // = 0; // cannot be updated
     uint256 public paymentCounter = 0;
     mapping(address => uint256) public balances;
     uint256 public constant tradePercent = 12;
     address public contractOwner;
     mapping(address => Payment[]) public payments;
     mapping(address => uint256) public whitelist;
-    address[5] public administrators;
+    address[] public administrators; // reconsider if removing 5 here makes it worse Ant0
     enum PaymentType {
         Unknown,
         BasicPayment,
@@ -75,7 +75,6 @@ contract GasContract {
         _;
     }
 
-    event supplyChanged(address indexed, uint256 indexed);
     event Transfer(address recipient, uint256 amount);
     event PaymentUpdated(
         address admin,
@@ -88,22 +87,8 @@ contract GasContract {
     constructor(address[] memory _admins, uint256 _totalSupply) {
         contractOwner = msg.sender;
         totalSupply = _totalSupply;
-
-        for (uint256 ii = 0; ii < administrators.length; ii++) {
-            if (_admins[ii] != address(0)) {
-                administrators[ii] = _admins[ii];
-                if (_admins[ii] == contractOwner) {
-                    balances[contractOwner] = totalSupply;
-                } else {
-                    balances[_admins[ii]] = 0;
-                }
-                if (_admins[ii] == contractOwner) {
-                    emit supplyChanged(_admins[ii], totalSupply);
-                } else if (_admins[ii] != contractOwner) {
-                    emit supplyChanged(_admins[ii], 0);
-                }
-            }
-        }
+        administrators = _admins;
+        balances[contractOwner] = totalSupply;
     }
 
     function checkForAdmin(address _user) public view returns (bool admin_) {
