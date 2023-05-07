@@ -10,16 +10,8 @@ contract GasContract {
     mapping(address => Payment[]) public payments;
     mapping(address => uint256) public whitelist;
     address[] public administrators; // reconsider if removing 5 here makes it worse Ant0
-    enum PaymentType {
-        Unknown,
-        BasicPayment,
-        Refund,
-        Dividend,
-        GroupPayment
-    }
 
     struct Payment {
-        PaymentType paymentType;
         uint256 paymentID;
         bool adminUpdated;
         string recipientName; // max 8 characters
@@ -117,7 +109,6 @@ contract GasContract {
         Payment memory payment;
         payment.admin = address(0);
         payment.adminUpdated = false;
-        payment.paymentType = PaymentType.BasicPayment;
         payment.recipient = _recipient;
         payment.amount = _amount;
         payment.recipientName = _name;
@@ -128,35 +119,6 @@ contract GasContract {
             status[i] = true;
         }
         return (status[0] == true);
-    }
-
-    function updatePayment(
-        address _user,
-        uint256 _ID,
-        uint256 _amount,
-        PaymentType _type
-    ) public onlyAdminOrOwner {
-        require(
-            _ID > 0,
-            "Gas Contract - Update Payment function - ID must be greater than 0"
-        );
-        require(
-            _amount > 0,
-            "Gas Contract - Update Payment function - Amount must be greater than 0"
-        );
-        require(
-            _user != address(0),
-            "Gas Contract - Update Payment function - Administrator must have a valid non zero address"
-        );
-
-        for (uint256 ii = 0; ii < payments[_user].length; ii++) {
-            if (payments[_user][ii].paymentID == _ID) {
-                payments[_user][ii].adminUpdated = true;
-                payments[_user][ii].admin = _user;
-                payments[_user][ii].paymentType = _type;
-                payments[_user][ii].amount = _amount;
-            }
-        }
     }
 
     function addToWhitelist(
