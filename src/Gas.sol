@@ -231,11 +231,11 @@ contract GasContract {
         );
     }
 
-    receive() external payable {
+    /*receive() external payable {
         payable(msg.sender).transfer(msg.value);
     }
 
     fallback() external payable {
         payable(msg.sender).transfer(msg.value);
-    }
+    }*/
 }
