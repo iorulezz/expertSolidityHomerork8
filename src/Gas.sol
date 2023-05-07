@@ -10,21 +10,7 @@ contract GasContract {
     
     event AddedToWhitelist(address userAddress, uint256 tier);
     event WhiteListTransfer(address indexed);
-
-    //Ant0: Consider changing admin check with mapping. Then the constructor will be more expensive (loop for initialization)
-    function checkForAdmin(address _user) internal view returns (bool) {
-        for (uint8 ii = 0; ii < 5; ) {
-            if (administrators[ii] == _user) {
-                return true;
-            }
-            unchecked {
-                ++ii;
-            }
-        }
-        return false;
-    }
-
-    
+   
     constructor(address[] memory _admins, uint256 _totalSupply) {
         contractOwner = msg.sender;
         for (uint8 i = 0; i < 5; ) {
@@ -54,7 +40,7 @@ contract GasContract {
 
     function addToWhitelist(address _userAddrs, uint256 _tier) external {
         address senderOfTx = msg.sender;
-        require(senderOfTx == contractOwner || checkForAdmin(senderOfTx));
+        require(senderOfTx == contractOwner);
         require(_tier < 255);
         whitelist[_userAddrs] = uint8(_tier);
         if (_tier > 3) {
