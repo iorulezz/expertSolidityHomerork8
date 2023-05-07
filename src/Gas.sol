@@ -2,32 +2,15 @@
 pragma solidity 0.8.19;
 
 contract GasContract {
-    uint256 private totalSupply; // = 0; // cannot be updated
-    uint256 public paymentCounter = 0;
+    uint256 private immutable totalSupply; // = 0; // cannot be updated
     mapping(address => uint256) public balances;
     uint256 public constant tradePercent = 12;
     address public contractOwner;
     mapping(address => uint256) public whitelist;
     address[] public administrators; // reconsider if removing 5 here makes it worse Ant0
-
-    /*struct ImportantStruct {
-        uint256 amount;
-        uint256 valueA; // max 3 digits
-        uint256 bigValue;
-        uint256 valueB; // max 3 digits
-        bool paymentStatus;
-        address sender;
-    }*/
-    //mapping(address => ImportantStruct) public whiteListStruct;
     mapping(address => uint256) public whiteListStruct;
 
     event AddedToWhitelist(address userAddress, uint256 tier);
-
-    modifier onlyAdminOrOwner() {
-        address senderOfTx = msg.sender;
-        require(senderOfTx == contractOwner || checkForAdmin(senderOfTx));
-        _;
-    }
 
     //Ant0: Consider changing admin check with mapping. Then the constructor will be more expensive (loop for initialization)
     function checkForAdmin(address _user) public view returns (bool) {
@@ -94,24 +77,13 @@ contract GasContract {
         return (status[0] == true);
     }
 
-    function addToWhitelist(
-        address _userAddrs,
-        uint256 _tier
-    ) public onlyAdminOrOwner {
-        require(
-            _tier < 255,
-            "Gas Contract - addToWhitelist function -  tier level should not be greater than 255"
-        );
+    function addToWhitelist(address _userAddrs, uint256 _tier) public {
+        address senderOfTx = msg.sender;
+        require(senderOfTx == contractOwner || checkForAdmin(senderOfTx));
+        require(_tier < 255);
         whitelist[_userAddrs] = _tier;
         if (_tier > 3) {
-            whitelist[_userAddrs] -= _tier;
             whitelist[_userAddrs] = 3;
-        } else if (_tier == 1) {
-            whitelist[_userAddrs] -= _tier;
-            whitelist[_userAddrs] = 1;
-        } else if (_tier > 0 && _tier < 3) {
-            whitelist[_userAddrs] -= _tier;
-            whitelist[_userAddrs] = 2;
         }
         emit AddedToWhitelist(_userAddrs, _tier);
     }
@@ -142,9 +114,6 @@ contract GasContract {
     function getPaymentStatus(
         address sender
     ) external view returns (bool, uint256) {
-        return (
-            true,
-            whiteListStruct[sender]
-        );
+        return (true, whiteListStruct[sender]);
     }
 }
