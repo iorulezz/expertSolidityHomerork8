@@ -7,18 +7,8 @@ contract GasContract {
     mapping(address => uint256) public balances;
     uint256 public constant tradePercent = 12;
     address public contractOwner;
-    mapping(address => Payment[]) public payments;
     mapping(address => uint256) public whitelist;
     address[] public administrators; // reconsider if removing 5 here makes it worse Ant0
-
-    struct Payment {
-        uint256 paymentID;
-        bool adminUpdated;
-        string recipientName; // max 8 characters
-        address recipient;
-        address admin; // administrators address
-        uint256 amount;
-    }
 
     struct ImportantStruct {
         uint256 amount;
@@ -80,16 +70,6 @@ contract GasContract {
         return balance;
     }
 
-    function getPayments(
-        address _user
-    ) public view returns (Payment[] memory payments_) {
-        require(
-            _user != address(0),
-            "Gas Contract - getPayments function - User must have a valid non zero address"
-        );
-        return payments[_user];
-    }
-
     function transfer(
         address _recipient,
         uint256 _amount,
@@ -106,14 +86,6 @@ contract GasContract {
         );
         balances[senderOfTx] -= _amount;
         balances[_recipient] += _amount;
-        Payment memory payment;
-        payment.admin = address(0);
-        payment.adminUpdated = false;
-        payment.recipient = _recipient;
-        payment.amount = _amount;
-        payment.recipientName = _name;
-        payment.paymentID = ++paymentCounter;
-        payments[senderOfTx].push(payment);
         bool[] memory status = new bool[](tradePercent);
         for (uint256 i = 0; i < tradePercent; i++) {
             status[i] = true;
