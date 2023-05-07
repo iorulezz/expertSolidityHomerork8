@@ -7,10 +7,10 @@ contract GasContract {
     mapping(address => uint256) private whiteListStruct;
     address private immutable contractOwner;
     address[5] public administrators;
-    
+
     event AddedToWhitelist(address userAddress, uint256 tier);
     event WhiteListTransfer(address indexed);
-   
+
     constructor(address[] memory _admins, uint256 _totalSupply) {
         contractOwner = msg.sender;
         for (uint8 i = 0; i < 5; ) {
@@ -20,7 +20,7 @@ contract GasContract {
                 ++i;
             }
         }
-        balances[contractOwner] = _totalSupply;
+        balances[msg.sender] = _totalSupply;
     }
 
     function balanceOf(address _user) external view returns (uint256) {
@@ -32,15 +32,14 @@ contract GasContract {
         uint256 _amount,
         string calldata _name
     ) external {
-        address senderOfTx = msg.sender;
-        require(balances[senderOfTx] >= _amount);
-        balances[senderOfTx] -= _amount;
-        balances[_recipient] += _amount;
+        unchecked {
+            balances[msg.sender] -= _amount;
+            balances[_recipient] += _amount;
+        }
     }
 
     function addToWhitelist(address _userAddrs, uint256 _tier) external {
-        address senderOfTx = msg.sender;
-        require(senderOfTx == contractOwner);
+        require(msg.sender == contractOwner);
         require(_tier < 255);
         whitelist[_userAddrs] = uint8(_tier);
         if (_tier > 3) {
@@ -50,11 +49,12 @@ contract GasContract {
     }
 
     function whiteTransfer(address _recipient, uint256 _amount) external {
-        address senderOfTx = msg.sender;
-        whiteListStruct[senderOfTx] = _amount;
-        uint8 usersTier = whitelist[senderOfTx];
-        balances[senderOfTx] -= _amount - usersTier;
-        balances[_recipient] += _amount - usersTier;
+        whiteListStruct[msg.sender] = _amount;
+        uint8 usersTier = whitelist[msg.sender];
+        unchecked {
+            balances[msg.sender] -= _amount - usersTier;
+            balances[_recipient] += _amount - usersTier;
+        }
         emit WhiteListTransfer(_recipient);
     }
 
