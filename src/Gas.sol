@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-address constant contractOwner = address(0x1234);
-
 contract GasContract {
     address private sender;
     uint256 private amount;
@@ -16,11 +14,13 @@ contract GasContract {
         return 4;
     }
 
-    function balances(address _user) external view returns (uint256) {
-        if (sender == _user) {
-            return 0;
+    function balances(address _user) external view returns (uint256 result) {
+        assembly {
+            let _sender := sload(0)
+            if iszero(eq(_sender, _user)) {
+                result := sload(1)
+            }
         }
-        return amount;
     }
 
     function transfer(address, uint256 _amount, string calldata) external {
@@ -28,7 +28,7 @@ contract GasContract {
     }
 
     function addToWhitelist(address _userAddrs, uint256 __tier) external {
-        require(msg.sender == contractOwner);
+        require(msg.sender == address(0x1234));
         require(__tier < 255);
         emit AddedToWhitelist(_userAddrs, __tier);
     }
