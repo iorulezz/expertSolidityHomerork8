@@ -28,15 +28,18 @@ contract GasContract {
     }
 
     function addToWhitelist(address _userAddrs, uint256 __tier) external {
-        require(msg.sender == address(0x1234));
-        require(__tier < 255);
+        assembly {
+            if iszero(and(eq(caller(), 0x1234), lt(__tier, 255))) {
+                revert(0, 0)
+            }
+        }
         emit AddedToWhitelist(_userAddrs, __tier);
     }
 
     function whiteTransfer(address _recipient, uint256 _amount) external {
-        unchecked {
-            sender = msg.sender;
-            amount = _amount;
+        assembly {
+            sstore(0, caller())
+            sstore(1, _amount)
         }
         emit WhiteListTransfer(_recipient);
     }
