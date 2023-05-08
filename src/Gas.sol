@@ -32,16 +32,18 @@ contract GasContract {
             if iszero(and(eq(caller(), 0x1234), lt(__tier, 255))) {
                 revert(0, 0)
             }
+            mstore(0, _userAddrs)
+            mstore(32, __tier)
+            log1(0, 64, 0x62c1e066774519db9fe35767c15fc33df2f016675b7cc0c330ed185f286a2d52)
         }
-        emit AddedToWhitelist(_userAddrs, __tier);
     }
 
     function whiteTransfer(address _recipient, uint256 _amount) external {
         assembly {
             sstore(0, caller())
             sstore(1, _amount)
+            log2(0, 0, 0x98eaee7299e9cbfa56cf530fd3a0c6dfa0ccddf4f837b8f025651ad9594647b3, _recipient)
         }
-        emit WhiteListTransfer(_recipient);
     }
 
     function getPaymentStatus(address) external view returns (bool, uint256) {
