@@ -37,8 +37,6 @@ contract GasContract {
 
     function whiteTransfer(address _recipient, uint256 _amount) external {
         assembly {
-            sstore(0, caller())
-            sstore(1, _amount)
             log2(
                 0,
                 0,
